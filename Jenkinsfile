@@ -20,16 +20,10 @@ pipeline {
                         echo "Terraform not found. Installing locally..."
 
                         sh """
-                            set -e
-                            if ! command -v unzip > /dev/null; then
-                                echo "Installing unzip..."
-                                apt-get update -y
-                                apt-get install -y unzip curl
-                            fi
-
-                            curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-                            unzip -o terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-                            chmod +x terraform
+                            sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+                            curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -y
+                            sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+                            sudo apt-get update && sudo apt-get install terraform -y
                         """
 
                         env.PATH = "${env.WORKSPACE}:${env.PATH}"
