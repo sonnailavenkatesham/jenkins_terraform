@@ -9,14 +9,37 @@ pipeline {
                     credentialsId: 'terraform_awscli'
                 ]]) {
                     ansiColor('xterm') {
-                        sh '''
-                            terraform version
-                            terraform init
-                            terraform plan
-                        '''
+                        echo "AWS_CLI configured"
                     }
                 }
             }
         }
+        stage('Terraform init') {
+            steps {
+                ansiColor('xterm') {
+                    sh '''
+                        terraform inite
+                    '''
+                }
+            }
+        }
+        stage('Terraform Plan') {
+            steps {
+                ansiColor('xterm') {
+                    sh '''
+                        terraform inite
+                    '''
+                }
+            }
+        }
+        stage('Terraform Approve') {
+            steps {
+                ansiColor('xterm') {
+                    sh '''
+                        terraform apply -auto-approve
+                    '''
+                }
+            }
+        }  
     }
 }
