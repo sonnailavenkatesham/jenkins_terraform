@@ -47,12 +47,6 @@ pipeline {
                     credentialsId: 'terraform_awscli'
                 ]]) {
                     script {
-                        // Check if AWS CLI is already configured (example: checking if config file exists)
-                        def awsConfigured = sh(
-                            script: 'test -f ~/.aws/credentials && echo "yes" || echo "no"',
-                            returnStdout: true
-                        ).trim() == 'yes'
-
                         if (!awsConfigured) {
                             echo 'Configuring AWS CLI...'
                             sh '''
