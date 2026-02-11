@@ -1,72 +1,62 @@
 pipeline {
     agent any
+
     environment {
         AWS_DEFAULT_REGION = 'us-east-1'
         TERRAFORM_VERSION = '1.6.6'
     }
 
     stages {
-        stage('Check and Install Tools') {
+
+        stage('Install Terraform (If Missing)') {
             steps {
                 script {
-                    def awsInstalled = sh(
-                        script: 'which aws || true',
-                        returnStatus: true
-                    ) == 0
-
                     def terraformInstalled = sh(
-                        script: 'which terraform || true',
+                        script: 'terraform version',
                         returnStatus: true
                     ) == 0
-
-                    if (!awsInstalled) {
-                        echo 'Installing AWS CLI...'
-                        sh '''
-                            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                            unzip awscliv2.zip
-                            sudo ./aws/install
-                        '''
-                    } else {
-                        echo 'AWS CLI already installed.'
-                    }
 
                     if (!terraformInstalled) {
-                        echo 'Installing Terraform...'
-                        sh '''
-                            sudo apt update
-                            sudo apt install -y unzip curl
+                        echo "Terraform not found. Installing locally..."
 
-                            curl -LO https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
-                            unzip terraform_1.6.6_linux_amd64.zip
-                            sudo mv terraform /usr/local/bin/
-                            sudo chmod +x /usr/local/bin/terraform
+                        sh """
+                            curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                            unzip -o terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                            chmod +x terraform
+                        """
 
-                        '''
+                        // Add current workspace to PATH
+                        env.PATH = "${env.WORKSPACE}:${env.PATH}"
                     } else {
-                        echo 'Terraform already installed.'
+                        echo "Terraform already installed."
                     }
                 }
             }
         }
 
-        stage('Configure AWS Credentials') {
+        stage('Run Terraform') {
             steps {
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'terraform_awscli'
                 ]]) {
-                    echo " AWS Credentials are configured"
-                }
-            }
-        }
 
-        stage('Run Terraform Commands') {
-            steps {
-                sh '''
-                    terraform version
-                    aws --version
-                '''
-                // Your Terraform commands can follow here
+                    script {
+                        // Ensure workspace terraform is used
+                        env.PATH = "${env.WORKSPACE}:${env.PATH}"
+                    }
+
+                    sh '''
+                        echo "Terraform Version:"
+                        terraform version
+
+                        echo "AWS Version:"
+                        aws --version
+
+                        echo "Verifying AWS Identity:"
+                        aws sts get-caller-identity
+                    '''
+                }
             }
         }
     }
