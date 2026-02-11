@@ -11,23 +11,27 @@ pipeline {
             steps {
                 script {
                     def awsInstalled = sh(
-                        script: 'which aws',
+                        script: 'aws --version',
                         returnStatus: true
                     ) == 0
 
                     if (!awsInstalled) {
-                        echo 'AWS CLI not found. Installing...'
-                        sh '''
+                        echo "AWS CLI not found. Installing locally..."
+
+                        sh """
                             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                            unzip awscliv2.zip
-                            sudo ./aws/install
-                        '''
+                            unzip -o awscliv2.zip
+                            ./aws/install --bin-dir ${env.WORKSPACE}/bin --install-dir ${env.WORKSPACE}/aws-cli --update
+                        """
+
+                        env.PATH = "${env.WORKSPACE}/bin:${env.PATH}"
                     } else {
-                        echo 'AWS CLI already installed.'
+                        echo "AWS CLI already installed."
                     }
                 }
             }
         }
+
 
         stage('Run Terraform Commands') {
             steps {
