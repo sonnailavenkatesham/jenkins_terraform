@@ -1,5 +1,5 @@
 resource "aws_instance" "server" {
-  count = length(var.instance_type)
+  count = length(var.servers)
   ami             = var.ami_id
   instance_type   = var.instance_type
   key_name        = "terrafrom"

@@ -8,15 +8,13 @@ pipeline {
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'terraform_awscli'
                 ]]) {
-                    sh '''
-                        echo "Terraform Version:"
-                        terraform version
-
-                        terraform init
-                        terraform fmt
-                        terraform validate
-                        terraform plan
-                    '''
+                    ansiColor('xterm') {
+                        sh '''
+                            terraform version
+                            terraform init
+                            terraform plan
+                        '''
+                    }
                 }
             }
         }
