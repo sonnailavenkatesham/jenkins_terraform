@@ -20,12 +20,18 @@ pipeline {
                         echo "Terraform not found. Installing locally..."
 
                         sh """
+                            set -e
+                            if ! command -v unzip > /dev/null; then
+                                echo "Installing unzip..."
+                                apt-get update -y
+                                apt-get install -y unzip curl
+                            fi
+
                             curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
                             unzip -o terraform_${TERRAFORM_VERSION}_linux_amd64.zip
                             chmod +x terraform
                         """
 
-                        // Add current workspace to PATH
                         env.PATH = "${env.WORKSPACE}:${env.PATH}"
                     } else {
                         echo "Terraform already installed."
@@ -42,18 +48,11 @@ pipeline {
                 ]]) {
 
                     script {
-                        // Ensure workspace terraform is used
                         env.PATH = "${env.WORKSPACE}:${env.PATH}"
                     }
 
                     sh '''
-                        echo "Terraform Version:"
                         terraform version
-
-                        echo "AWS Version:"
-                        aws --version
-
-                        echo "Verifying AWS Identity:"
                         aws sts get-caller-identity
                     '''
                 }
