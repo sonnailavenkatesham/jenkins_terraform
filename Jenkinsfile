@@ -46,17 +46,7 @@ pipeline {
                     $class: 'AmazonWebServicesCredentialsBinding', 
                     credentialsId: 'terraform_awscli'
                 ]]) {
-                    script {
-                        if (!awsConfigured) {
-                            echo 'Configuring AWS CLI...'
-                            sh '''
-                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                            '''
-                        } else {
-                            echo 'AWS CLI already configured.'
-                        }
-                    }
+                    echo " AWS Credentials are configured"
                 }
             }
         }
