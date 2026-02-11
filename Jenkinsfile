@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        TERRAFORM_VERSION = '1.6.6'
+    }
 
     stages {
         stage('Check and Install Tools') {
