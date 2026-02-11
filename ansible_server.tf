@@ -6,6 +6,5 @@ resource "aws_instance" "server" {
   security_groups = [aws_security_group.allow_server.name]
   tags = {
     Name      = var.servers[count.index]
-    Terraform = "Yes"
   }
 }
