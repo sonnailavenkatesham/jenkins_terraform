@@ -16,30 +16,45 @@ pipeline {
         }
         stage('Terraform init') {
             steps {
-                ansiColor('xterm') {
-                    sh '''
-                        terraform init
-                    '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'terraform_awscli'
+                ]]) {
+                    ansiColor('xterm') {
+                        sh '''
+                            terraform init
+                        '''
+                    }
                 }
             }
         }
-        stage('Terraform Plan') {
+        stage('Terraform plan') {
             steps {
-                ansiColor('xterm') {
-                    sh '''
-                        terraform plan
-                    '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'terraform_awscli'
+                ]]) {
+                    ansiColor('xterm') {
+                        sh '''
+                            terraform plan
+                        '''
+                    }
                 }
             }
         }
         stage('Terraform Approve') {
             steps {
-                ansiColor('xterm') {
-                    sh '''
-                        terraform apply -auto-approve
-                    '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'terraform_awscli'
+                ]]) {
+                    ansiColor('xterm') {
+                        sh '''
+                            terraform apply -auto-approve
+                        '''
+                    }
                 }
             }
-        }  
+        }
     }
 }
