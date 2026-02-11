@@ -18,7 +18,7 @@ pipeline {
             steps {
                 ansiColor('xterm') {
                     sh '''
-                        terraform inite
+                        terraform init
                     '''
                 }
             }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 ansiColor('xterm') {
                     sh '''
-                        terraform inite
+                        terraform plan
                     '''
                 }
             }
